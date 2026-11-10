@@ -22,14 +22,14 @@ steps:
         gcloud deploy releases create "$$RELEASE_NAME" \
           --delivery-pipeline=run-pipeline \
           --region=${_REGION} \
-          --skaffold-file=deploy/skaffold.yaml \
+          --skaffold-file=deploy/skaffold-run.yaml \
           --images=sample-app=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:${_TAG}
           
         echo "==> Creating GKE release..."
         gcloud deploy releases create "$$RELEASE_NAME" \
           --delivery-pipeline=gke-pipeline \
           --region=${_REGION} \
-          --skaffold-file=deploy/skaffold.yaml \
+          --skaffold-file=deploy/skaffold-gke.yaml \
           --images=sample-app=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:${_TAG}
 
 substitutions:

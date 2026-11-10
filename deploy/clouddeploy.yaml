@@ -6,7 +6,6 @@ description: "Cloud Run Delivery Pipeline"
 serialPipeline:
   stages:
   - targetId: run-target
-    profiles: ["cloud-run-target"]
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
@@ -16,7 +15,6 @@ description: "GKE Delivery Pipeline"
 serialPipeline:
   stages:
   - targetId: gke-target
-    profiles: []
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
