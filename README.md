@@ -3,9 +3,20 @@ cat <<'EOF' > README.md
 
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/neelshah2409/cloud-native-gcp-workshop&cloudshell_tutorial=README.md)
 
-This hands-on workshop walks through building, containerizing, and orchestrating deployments across Google Cloud using **Cloud Build**, **Artifact Registry**, **Cloud Run**, **GKE**, and **Cloud Deploy**.
+Hands-on workshop demonstrating containerization, automated CI/CD pipelines, and multi-runtime delivery using **Cloud Build**, **Artifact Registry**, **Cloud Run**, **GKE Autopilot**, and **Cloud Deploy**.
 
 ---
+
+## Workshop Architecture
+
+```text
+Source Code (Go) 
+  └─► Cloud Build (Multi-stage Dockerfile)
+        └─► Artifact Registry (Container Image)
+              ├─► Cloud Deploy (run-pipeline) ──► Cloud Run (Serverless)
+              └─► Cloud Deploy (gke-pipeline) ──► GKE Autopilot (Kubernetes)
+This hands-on workshop walks through building, containerizing, and orchestrating deployments across Google Cloud using **Cloud Build**, **Artifact Registry**, **Cloud Run**, **GKE**, and **Cloud Deploy**.
+```
 
 ## Quickstart
 
