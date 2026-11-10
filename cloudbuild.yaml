@@ -1,13 +1,13 @@
 steps:
   # 1. Build container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:$SHORT_SHA', './app']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:${_TAG}', './app']
 
   # 2. Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:$SHORT_SHA']
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:${_TAG}']
 
-  # 3. Apply Cloud Deploy pipeline and create release
+  # 3. Apply Cloud Deploy pipelines and trigger releases
   - name: 'google/cloud-sdk:slim'
     entrypoint: 'bash'
     args:
@@ -15,12 +15,24 @@ steps:
       - |
         sed -i "s/PROJECT_ID/${PROJECT_ID}/g" deploy/clouddeploy.yaml
         gcloud deploy apply --file=deploy/clouddeploy.yaml --region=${_REGION}
-        gcloud deploy releases create release-$SHORT_SHA \
-          --delivery-pipeline=workshop-pipeline \
+        
+        RELEASE_NAME="rel-${_TAG}-$(date +%s)"
+        
+        echo "==> Creating Cloud Run release..."
+        gcloud deploy releases create "$$RELEASE_NAME" \
+          --delivery-pipeline=run-pipeline \
           --region=${_REGION} \
           --skaffold-file=deploy/skaffold.yaml \
-          --images=sample-app=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:$SHORT_SHA
+          --images=sample-app=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:${_TAG}
+          
+        echo "==> Creating GKE release..."
+        gcloud deploy releases create "$$RELEASE_NAME" \
+          --delivery-pipeline=gke-pipeline \
+          --region=${_REGION} \
+          --skaffold-file=deploy/skaffold.yaml \
+          --images=sample-app=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:${_TAG}
 
 substitutions:
   _REGION: us-central1
   _REPO_NAME: workshop-repo
+  _TAG: v1
