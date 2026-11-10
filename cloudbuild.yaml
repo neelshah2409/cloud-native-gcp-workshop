@@ -1,0 +1,26 @@
+steps:
+  # 1. Build container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:$SHORT_SHA', './app']
+
+  # 2. Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:$SHORT_SHA']
+
+  # 3. Apply Cloud Deploy pipeline and create release
+  - name: 'google/cloud-sdk:slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        sed -i "s/PROJECT_ID/${PROJECT_ID}/g" deploy/clouddeploy.yaml
+        gcloud deploy apply --file=deploy/clouddeploy.yaml --region=${_REGION}
+        gcloud deploy releases create release-$SHORT_SHA \
+          --delivery-pipeline=workshop-pipeline \
+          --region=${_REGION} \
+          --skaffold-file=deploy/skaffold.yaml \
+          --images=sample-app=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/sample-app:$SHORT_SHA
+
+substitutions:
+  _REGION: us-central1
+  _REPO_NAME: workshop-repo

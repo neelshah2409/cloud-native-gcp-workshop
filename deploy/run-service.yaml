@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sample-app-run
+spec:
+  template:
+    spec:
+      containers:
+      - image: sample-app
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 256Mi
